@@ -21,7 +21,7 @@ foreach ($PrivateClassFile in $private:PrivateClassesFiles) {
     }
     catch {
         throw [System.InvalidOperationException]::new(
-            "Не удалось импортировать файл класса '$($PrivateClassFile.FullName)': $($_.Exception.Message)",
+            "Не удалось загрузить файл класса '$($PrivateClassFile.FullName)': $($_.Exception.Message)",
             $_.Exception
         )
     }
@@ -33,7 +33,7 @@ foreach ($PrivateClassFile in $private:PrivateClassesFiles) {
 # Импорт публичных классов
 [string]$private:PublicClassesPath = Join-Path -Path $PSScriptRoot -ChildPath "Classes"
 if (-not (Test-Path -LiteralPath $private:PublicClassesPath -PathType Container)) {
-    throw [System.IO.DirectoryNotFoundException]::new("Указанный путь к каталогу классов '$($private:PublicClassesPath)' не существует или не является каталогом.")
+    throw [System.IO.DirectoryNotFoundException]::new("Каталог классов '$($private:PublicClassesPath)' не существует или не является каталогом.")
 }
 [System.IO.FileInfo[]]$private:PublicClassesFiles = Get-ChildItem `
     -LiteralPath $private:PublicClassesPath `
@@ -79,7 +79,7 @@ foreach ($PublicClassFile in $private:PublicClassesFiles) {
     }
     catch {
         throw [System.InvalidOperationException]::new(
-            "Не удалось импортировать файл класса '$($PublicClassFile.FullName)': $($_.Exception.Message)",
+            "Не удалось загрузить файл класса '$($PublicClassFile.FullName)': $($_.Exception.Message)",
             $_.Exception
         )
     }
@@ -88,7 +88,7 @@ foreach ($PublicClassFile in $private:PublicClassesFiles) {
 # Импорт функций для внутреннего использования, не экспортируемых из модуля
 [string]$private:PrivateFunctionsPath = Join-Path -Path $PSScriptRoot -ChildPath "Private" -AdditionalChildPath "Functions"
 if (-not (Test-Path -LiteralPath $private:PrivateFunctionsPath -PathType Container)) {
-    throw [System.IO.DirectoryNotFoundException]::new("Указанный путь к каталогу функций '$($private:PrivateFunctionsPath)' не существует или не является каталогом.")
+    throw [System.IO.DirectoryNotFoundException]::new("Каталог функций '$($private:PrivateFunctionsPath)' не существует или не является каталогом.")
 }
 [System.IO.FileInfo[]]$private:PrivateFunctionsFiles = Get-ChildItem `
     -LiteralPath $private:PrivateFunctionsPath `
@@ -109,7 +109,7 @@ foreach ($PrivateFunctionFile in $private:PrivateFunctionsFiles) {
     }
     catch {
         throw [System.InvalidOperationException]::new(
-            "Не удалось импортировать файл функции '$($PrivateFunctionFile.FullName)': $($_.Exception.Message)",
+            "Не удалось загрузить файл функции '$($PrivateFunctionFile.FullName)': $($_.Exception.Message)",
             $_.Exception
         )
     }
@@ -118,7 +118,7 @@ foreach ($PrivateFunctionFile in $private:PrivateFunctionsFiles) {
 # Импорт публичных функций, экспортируемых из модуля
 [string]$private:PublicFunctionsPath = Join-Path -Path $PSScriptRoot -ChildPath "Functions"
 if (-not (Test-Path -LiteralPath $private:PublicFunctionsPath -PathType Container)) {
-    throw [System.IO.DirectoryNotFoundException]::new("Указанный путь к каталогу функций '$($private:PublicFunctionsPath)' не существует или не является каталогом.")
+    throw [System.IO.DirectoryNotFoundException]::new("Каталог функций '$($private:PublicFunctionsPath)' не существует или не является каталогом.")
 }
 [System.IO.FileInfo[]]$private:PublicFunctionsFiles = Get-ChildItem `
     -LiteralPath $private:PublicFunctionsPath `
@@ -139,7 +139,7 @@ foreach ($PublicFunctionFile in $private:PublicFunctionsFiles) {
     }
     catch {
         throw [System.InvalidOperationException]::new(
-            "Не удалось импортировать файл функции '$($PublicFunctionFile.FullName)': $($_.Exception.Message)",
+            "Не удалось загрузить файл функции '$($PublicFunctionFile.FullName)': $($_.Exception.Message)",
             $_.Exception
         )
     }
@@ -149,27 +149,27 @@ foreach ($PublicFunctionFile in $private:PublicFunctionsFiles) {
 # РЕГИСТРАЦИЯ TYPE ACCELERATORS #
 #################################
 
-# About adding type accelerators:
+# О type accelerators и их экспорте:
 # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_classes?view=powershell-7.4#export-classes-with-type-accelerators
 
-# Define the types to export with type accelerators.
+# Определить типы, экспортируемые через type accelerators.
 [type[]]$ExportableTypes = foreach ($TypeName in $private:ExportableTypeNames) {
     [type]$TypeName
 }
 
-# Get the internal TypeAccelerators class to use its static methods.
+# Получить внутренний класс TypeAccelerators для вызова статических методов.
 $TypeAcceleratorsClass = [psobject].Assembly.GetType(
     'System.Management.Automation.TypeAccelerators'
 )
 
-# Ensure none of the types would clobber an existing type accelerator.
-# If a type accelerator with the same name exists, throw an exception.
+# Проверить, что ни один тип не заменит существующий type accelerators.
+# Если type accelerators с таким именем уже зарегистрирован, прервать загрузку.
 $private:ExistingTypeAccelerators = $TypeAcceleratorsClass::Get
 foreach ($Type in $ExportableTypes) {
     if ($Type.FullName -in $private:ExistingTypeAccelerators.Keys) {
         $private:Message = @(
-            "Unable to register type accelerator '$($Type.FullName)'"
-            'Accelerator already exists.'
+            "Не удалось зарегистрировать type accelerators '$($Type.FullName)'"
+            'Type accelerators с таким именем уже существует.'
         ) -join ' - '
 
         throw [System.Management.Automation.ErrorRecord]::new(
@@ -181,12 +181,12 @@ foreach ($Type in $ExportableTypes) {
     }
 }
 
-# Add type accelerators for every exportable type.
+# Зарегистрировать type accelerators для всех экспортируемых типов.
 foreach ($Type in $ExportableTypes) {
     $TypeAcceleratorsClass::Add($Type.FullName, $Type)
 }
 
-# Remove type accelerators when the module is removed.
+# Удалить type accelerators при выгрузке модуля.
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
     foreach ($Type in $ExportableTypes) {
         [void]$TypeAcceleratorsClass::Remove($Type.FullName)

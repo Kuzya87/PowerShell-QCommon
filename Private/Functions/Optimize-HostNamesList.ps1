@@ -42,12 +42,12 @@ function Optimize-HostNamesList {
         [string]$Name = $Item.Trim()
 
         # Проверка на FQDN или короткое имя хоста
-        if ([QCommonHostName]::CheckFQDNIsCorrect($Name)) {
+        if ([QCommonHostName]::ValidateFQDN($Name)) {
             if ($Name.EndsWith(".", [System.StringComparison]::Ordinal)) {
                 $Name = $Name.Substring(0, ($Name.Length - 1))
             }
         }
-        elseif ([QCommonHostName]::CheckShortHostNameIsCorrect($Name)) {
+        elseif ([QCommonHostName]::ValidateShortHostName($Name)) {
             if ($HasDomainSuffix) {
                 try {
                     $Name = [QCommonHostName]::JoinDomainSuffix($Name, $DomainSuffix)

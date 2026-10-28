@@ -36,7 +36,7 @@ function Test-FQDN {
         return $false
     }
 
-    if (-not [QCommonHostName]::CheckShortHostNameIsCorrect($Labels[0])) {
+    if (-not [QCommonHostName]::ValidateShortHostName($Labels[0])) {
         return $false
     }
 

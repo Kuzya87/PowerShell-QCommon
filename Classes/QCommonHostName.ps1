@@ -1,30 +1,30 @@
 class QCommonHostName {
-    static [bool] CheckShortHostNameIsCorrect([string]$HostName) {
+    static [bool] ValidateShortHostName([string]$HostName) {
         [bool]$result = Test-ShortHostName -HostName $HostName
         return $result
     }
 
-    static [bool] CheckFQDNIsCorrect([string]$FQDN) {
+    static [bool] ValidateFQDN([string]$FQDN) {
         [bool]$result = Test-FQDN -FQDN $FQDN
         return $result
     }
 
-    static [bool] CheckIPv4Address([string]$IPv4Address) {
+    static [bool] ValidateIPv4Address([string]$IPv4Address) {
         [bool]$result = Test-IPv4Address -IPv4Address $IPv4Address
         return $result
     }
 
-    static [bool] CheckIPv4Address([string]$IPv4Address, [bool]$OnlyLocal) {
+    static [bool] ValidateIPv4Address([string]$IPv4Address, [bool]$OnlyLocal) {
         [bool]$result = Test-IPv4Address -IPv4Address $IPv4Address -OnlyLocal:$OnlyLocal
         return $result
     }
 
-    static [bool] CheckIPv6Address([string]$IPv6Address) {
+    static [bool] ValidateIPv6Address([string]$IPv6Address) {
         [bool]$result = Test-IPv6Address -IPv6Address $IPv6Address
         return $result
     }
 
-    static [bool] CheckIPv6Address([string]$IPv6Address, [bool]$OnlyLocal) {
+    static [bool] ValidateIPv6Address([string]$IPv6Address, [bool]$OnlyLocal) {
         [bool]$result = Test-IPv6Address -IPv6Address $IPv6Address -OnlyLocal:$OnlyLocal
         return $result
     }

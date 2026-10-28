@@ -32,7 +32,7 @@ function Optimize-IPAddressesList {
             continue
         }
 
-        if ([QCommonHostName]::CheckIPv4Address($Address)) {
+        if ([QCommonHostName]::ValidateIPv4Address($Address)) {
             [string[]]$Octets = $Address.Split('.')
             for ([int]$Index = 0; $Index -lt $Octets.Count; $Index++) {
                 [int]$Octet = [int]::Parse(
@@ -46,7 +46,7 @@ function Optimize-IPAddressesList {
             }
             $Address = $Octets -join '.'
         }
-        elseif ([QCommonHostName]::CheckIPv6Address($Address)) {
+        elseif ([QCommonHostName]::ValidateIPv6Address($Address)) {
             try {
                 $Address = [System.Net.IPAddress]::Parse($Address).ToString().ToLowerInvariant()
             }
